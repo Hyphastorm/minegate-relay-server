@@ -1,0 +1,27 @@
+name: minegate-relay
+services:
+- name: relay-server
+  source_dir: /
+  github:
+    repo: minegate-plugin
+    branch: main
+    deploy_on_push: true
+  run_command: npm start
+  environment_slug: node-js
+  instance_count: 1
+  instance_size_slug: basic-xxs
+  http_port: 8080
+  env:
+  - key: NODE_ENV
+    value: production
+  - key: PORT
+    value: "8080"
+  - key: SHARED_SECRET
+    value: minegate-relay-secret-2025-secure-key
+  health_check:
+    http_path: /health
+  routes:
+  - path: /
+domains:
+- name: minegate-relay.com
+  type: PRIMARY
