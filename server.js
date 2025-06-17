@@ -6,7 +6,7 @@ const crypto = require('crypto');
 require('dotenv').config();
 
 const app = express();
-const PORT = process.env.PORT || 8080;
+const PORT = parseInt(process.env.PORT) || 8080;
 const SHARED_SECRET = process.env.SHARED_SECRET || 'default-secret-change-me';
 
 // Security middleware
