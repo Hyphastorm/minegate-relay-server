@@ -69,14 +69,21 @@ function createMessage(type, from, to, payload) {
     return message;
 }
 
-// WebSocket server
+// Create HTTP server first
+const server = app.listen(PORT, () => {
+    console.log(`✅ HTTP server listening on port ${PORT}`);
+    console.log(`🔗 Health check: http://localhost:${PORT}/health`);
+    console.log(`📊 Server list: http://localhost:${PORT}/servers`);
+});
+
+// WebSocket server attached to the same HTTP server
 const wss = new WebSocket.Server({
-    port: PORT + 1, // WebSocket on PORT + 1
+    server: server, // Use the same server
     path: '/minegate/v1/connect'
 });
 
 console.log(`🚀 Minegate Relay Server starting...`);
-console.log(`📡 WebSocket server: ws://localhost:${PORT + 1}/minegate/v1/connect`);
+console.log(`📡 WebSocket server: ws://localhost:${PORT}/minegate/v1/connect`);
 console.log(`🌐 HTTP server: http://localhost:${PORT}`);
 
 wss.on('connection', (ws, req) => {
@@ -293,7 +300,7 @@ app.get('/', (req, res) => {
         status: 'running',
         uptime: process.uptime(),
         connected_servers: connectedServers.size,
-        websocket_endpoint: `ws://${req.get('host').replace(PORT, PORT + 1)}/minegate/v1/connect`
+        websocket_endpoint: `ws://${req.get('host')}/minegate/v1/connect`
     });
 });
 
@@ -348,13 +355,7 @@ process.on('SIGINT', () => {
     });
 });
 
-// Start HTTP server
-app.listen(PORT, () => {
-    console.log(`✅ HTTP server listening on port ${PORT}`);
-    console.log(`🔗 Health check: http://localhost:${PORT}/health`);
-    console.log(`📊 Server list: http://localhost:${PORT}/servers`);
-    console.log(`🌍 Ready to accept connections!`);
-});
+console.log(`🌍 Ready to accept connections!`);
 
 // Cleanup old disconnected servers periodically
 setInterval(() => {
